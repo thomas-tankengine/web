@@ -4,15 +4,15 @@ import {CharField, charField} from "@web/views/fields/char/char_field";
 import {loadJS} from "@web/core/assets";
 import {registry} from "@web/core/registry";
 
-import {onPatched, onWillStart, useEffect, useRef} from "@odoo/owl";
+import {onPatched, onWillStart, signal, useEffect} from "@odoo/owl";
 
 export class PlotlyChartWidget extends CharField {
     static template = "web_widget_plotly_chart.PlotlyChartWidgetField";
 
+    widget = signal.ref();
+
     setup() {
         super.setup();
-
-        this.widget = useRef("widget");
 
         onPatched(() => {
             this.updatePlotly(this.props.record.data[this.props.name]);
@@ -31,8 +31,9 @@ export class PlotlyChartWidget extends CharField {
         const div = value_html.querySelector(".plotly-graph-div")?.outerHTML || "";
         const script = value_html.querySelector("script")?.textContent || "";
 
-        if (this.widget.el) {
-            this.widget.el.innerHTML = div;
+        const el = this.widget();
+        if (el) {
+            el.innerHTML = div;
             new Function(script)();
         }
     }
