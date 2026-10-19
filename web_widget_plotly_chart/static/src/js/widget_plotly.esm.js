@@ -9,10 +9,10 @@ import {onPatched, onWillStart, signal, useEffect} from "@odoo/owl";
 export class PlotlyChartWidget extends CharField {
     static template = "web_widget_plotly_chart.PlotlyChartWidgetField";
 
+    widget = signal.ref();
+
     setup() {
         super.setup();
-
-        this.widget = signal.ref();
 
         onPatched(() => {
             this.updatePlotly(this.props.record.data[this.props.name]);
