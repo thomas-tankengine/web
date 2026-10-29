@@ -22,19 +22,24 @@ export class PlotlyChartWidget extends CharField {
             this.updatePlotly(this.props.record.data[this.props.name]);
         });
 
-        onWillStart(() =>
-            loadJS("/web_widget_plotly_chart/static/src/lib/plotly/plotly-4.1.1.min.js")
-        );
+        onWillStart(() => loadJS("/web_widget_plotly_chart/static/src/lib/plotly/plotly-4.1.1.min.js"));
     }
     updatePlotly(value) {
         const value_html = new DOMParser().parseFromString(value, "text/html");
         const div = value_html.querySelector(".plotly-graph-div")?.outerHTML || "";
-        const script = value_html.querySelector("script")?.textContent || "";
+        // Plus d'un <script> possible dans la valeur : plotly.offline.plot() en genere deja un
+        // (son propre Plotly.newPlot(...)), et un consommateur de ce widget peut en concatener un
+        // second a la suite (ex. goodstock_graph_history_for_product.py:_get_y_axis_autoresize_script,
+        // qui recalibre l'axe Y sur la fenetre visible). querySelector("script") (singulier)
+        // ne recuperait que le PREMIER des deux et executait silencieusement le second nulle part -
+        // regression relevee par Thomas le 29/10/2026 : le recalibrage au chargement/pan ("remonter
+        // le plus haut possible les dents de scie") ne se declenchait plus du tout.
+        const scripts = [...value_html.querySelectorAll("script")].map((scriptEl) => scriptEl.textContent).join("\n");
 
         const el = this.widget();
         if (el) {
             el.innerHTML = div;
-            new Function(script)();
+            new Function(scripts)();
         }
     }
 }

@@ -16,6 +16,9 @@
             "web_widget_plotly_chart/static/src/js/widget_plotly.esm.js",
             "web_widget_plotly_chart/static/src/js/widget_plotly.xml",
         ],
+        "web.assets_unit_tests": [
+            "web_widget_plotly_chart/static/tests/**/*",
+        ],
     },
     "license": "LGPL-3",
 }
